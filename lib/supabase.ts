@@ -37,3 +37,23 @@ const getSupabaseClient = () => {
 }
 
 export const supabase = getSupabaseClient()
+
+// Helper to deduplicate auth calls and prevent hanging
+let globalUserPromise: Promise<any> | null = null
+
+export async function getSafeUser() {
+  if (!globalUserPromise) {
+    // Create a promise that rejects/resolves after 2 seconds to prevent hanging
+    const timeoutPromise = new Promise((resolve) => {
+      setTimeout(() => resolve({ data: { user: null }, error: null }), 2000)
+    })
+
+    // Race the actual auth call against the timeout
+    globalUserPromise = Promise.race([supabase.auth.getUser(), timeoutPromise]).then((res) => {
+      // Keep cache briefly to handle simultaneous component mounts
+      setTimeout(() => { globalUserPromise = null }, 2000)
+      return res
+    })
+  }
+  return globalUserPromise
+}

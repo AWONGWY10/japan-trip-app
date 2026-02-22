@@ -2,29 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import type { CustomSpot, Activity } from "@/lib/itinerary-data"
-import { supabase } from "@/lib/supabase"
-
-// [SYNC STRATEGY]
-// Hybrid approach: If user is logged in, use Supabase. If not, use localStorage.
-
-// Helper to deduplicate auth calls during high-concurrency page loads
-let globalUserPromise: Promise<any> | null = null
-function getCachedUser() {
-  if (!globalUserPromise) {
-    // Create a promise that rejects/resolves after 2 seconds to prevent hanging
-    const timeoutPromise = new Promise((resolve) => {
-      setTimeout(() => resolve({ data: { user: null }, error: null }), 2000)
-    })
-
-    // Race the actual auth call against the timeout
-    globalUserPromise = Promise.race([supabase.auth.getUser(), timeoutPromise]).then((res) => {
-      // Keep cache briefly to handle simultaneous component mounts
-      setTimeout(() => { globalUserPromise = null }, 2000)
-      return res
-    })
-  }
-  return globalUserPromise
-}
+import { supabase, getSafeUser } from "@/lib/supabase"
 
 export function useTripNotes(dayId: number) {
   const key = `japan-trip-notes-day-${dayId}`
@@ -35,7 +13,7 @@ export function useTripNotes(dayId: number) {
   useEffect(() => {
     let ignore = false
     async function load() {
-      const { data: { user } } = await getCachedUser()
+      const { data: { user } } = await getSafeUser()
       
       if (user) {
         setCurrentUserId(user.id)
@@ -70,7 +48,7 @@ export function useTripNotes(dayId: number) {
   // Persist to Database (Save)
   const saveNotes = useCallback(async () => {
     
-    const { data: { user } } = await getCachedUser()
+    const { data: { user } } = await getSafeUser()
     if (user) {
       // Save to Supabase
       await supabase.from("notes").upsert({
@@ -97,7 +75,7 @@ export function useTripNotes(dayId: number) {
     setNotes("")
     localStorage.removeItem(key)
     
-    const { data: { user } } = await getCachedUser()
+    const { data: { user } } = await getSafeUser()
     if (user) {
       // Save empty content to "delete" it from view
       await supabase.from("notes").upsert({ 
@@ -120,7 +98,7 @@ export function useTripBudget(dayId: number) {
   useEffect(() => {
     let ignore = false
     async function load() {
-      const { data: { user } } = await getCachedUser()
+      const { data: { user } } = await getSafeUser()
       
       if (user) {
         const { data } = await supabase
@@ -141,7 +119,7 @@ export function useTripBudget(dayId: number) {
   const saveBudget = useCallback(async (newBudget: string) => {
     setBudget(newBudget)
     
-    const { data: { user } } = await getCachedUser()
+    const { data: { user } } = await getSafeUser()
     if (user) {
       await supabase.from("budgets").upsert({ user_id: user.id, day_id: dayId, amount: newBudget })
     } else {
@@ -159,7 +137,7 @@ export function useTripSpots(dayId: number) {
   useEffect(() => {
     let ignore = false
     async function load() {
-      const { data: { user } } = await getCachedUser()
+      const { data: { user } } = await getSafeUser()
       
       if (user) {
         const { data } = await supabase
@@ -204,7 +182,7 @@ export function useTripSpots(dayId: number) {
     
     setSpots((prev) => [...prev, newSpot])
 
-    const { data: { user } } = await getCachedUser()
+    const { data: { user } } = await getSafeUser()
     if (user) {
       await supabase.from("spots").insert({
         user_id: user.id,
@@ -226,7 +204,7 @@ export function useTripSpots(dayId: number) {
   const removeSpot = useCallback(async (id: string) => {
     setSpots((prev) => prev.filter((s) => s.id !== id))
 
-    const { data: { user } } = await getCachedUser()
+    const { data: { user } } = await getSafeUser()
     if (user) {
       await supabase.from("spots").delete().eq("spot_id", id)
     } else {
@@ -251,7 +229,7 @@ export function useAllTripBudgets(dayIds: number[]) {
       const newBudgets: Record<number, string> = {}
       let newTotal = 0
       
-      const { data: { user } } = await getCachedUser()
+      const { data: { user } } = await getSafeUser()
 
       if (user) {
         // Fetch all budgets for this user in one go
@@ -297,7 +275,7 @@ export function useTripActivities(dayId: number, initialActivities: Activity[]) 
   useEffect(() => {
     let ignore = false
     async function load() {
-      const { data: { user } } = await getCachedUser()
+      const { data: { user } } = await getSafeUser()
       
       if (user) {
         const { data } = await supabase
@@ -326,7 +304,7 @@ export function useTripActivities(dayId: number, initialActivities: Activity[]) 
   const saveActivities = useCallback(async (newActivities: Activity[]) => {
     setActivities(newActivities)
     
-    const { data: { user } } = await getCachedUser()
+    const { data: { user } } = await getSafeUser()
     if (user) {
       await supabase.from("day_activities").upsert({ user_id: user.id, day_id: dayId, activities_json: newActivities })
     } else {

@@ -3,7 +3,7 @@
 import { ArrowUp, Globe, List, User, LogOut } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { supabase, getSafeUser } from "@/lib/supabase"
 
 type Lang = "en" | "zh"
 
@@ -20,7 +20,7 @@ export function FloatingNav({
 
   useEffect(() => {
     // Check current user
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+    getSafeUser().then(({ data }) => setUser(data.user))
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
