@@ -61,8 +61,13 @@ export function WeatherWidget({
       return
     }
 
-    // 3. Fetch Data from Open-Meteo
-    async function fetchWeather() {
+    // 3. Fetch Data from Open-Meteo with staggered delay to prevent 429 errors
+    let ignore = false
+    const delay = Math.random() * 2000 // Random delay between 0-2s
+
+    const timer = setTimeout(async () => {
+      if (ignore) return
+      
       try {
         const res = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${coords!.lat}&longitude=${coords!.lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&start_date=${formattedDate}&end_date=${formattedDate}&timezone=auto`
@@ -75,7 +80,7 @@ export function WeatherWidget({
 
         const data = await res.json()
         
-        if (data.daily) {
+        if (data.daily && !ignore) {
           setWeather({
             maxTemp: data.daily.temperature_2m_max[0],
             minTemp: data.daily.temperature_2m_min[0],
@@ -84,13 +89,16 @@ export function WeatherWidget({
         }
       } catch (e) {
         console.error("Weather fetch failed", e)
-        setError(true)
+        if (!ignore) setError(true)
       } finally {
-        setLoading(false)
+        if (!ignore) setLoading(false)
       }
-    }
+    }, delay)
 
-    fetchWeather()
+    return () => {
+      ignore = true
+      clearTimeout(timer)
+    }
   }, [dateStr, locationStr])
 
   if (loading) return <div className="animate-pulse w-16 h-4 bg-gray-200 rounded" />
