@@ -11,7 +11,13 @@ import { supabase } from "@/lib/supabase"
 let globalUserPromise: Promise<any> | null = null
 function getCachedUser() {
   if (!globalUserPromise) {
-    globalUserPromise = supabase.auth.getUser().then((res) => {
+    // Create a promise that rejects/resolves after 2 seconds to prevent hanging
+    const timeoutPromise = new Promise((resolve) => {
+      setTimeout(() => resolve({ data: { user: null }, error: null }), 2000)
+    })
+
+    // Race the actual auth call against the timeout
+    globalUserPromise = Promise.race([supabase.auth.getUser(), timeoutPromise]).then((res) => {
       // Keep cache briefly to handle simultaneous component mounts
       setTimeout(() => { globalUserPromise = null }, 2000)
       return res
