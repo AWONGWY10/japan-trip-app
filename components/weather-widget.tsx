@@ -67,6 +67,12 @@ export function WeatherWidget({
         const res = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${coords!.lat}&longitude=${coords!.lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&start_date=${formattedDate}&end_date=${formattedDate}&timezone=auto`
         )
+        
+        if (!res.ok) {
+          setLoading(false)
+          return
+        }
+
         const data = await res.json()
         
         if (data.daily) {
@@ -78,6 +84,7 @@ export function WeatherWidget({
         }
       } catch (e) {
         console.error("Weather fetch failed", e)
+        setError(true)
       } finally {
         setLoading(false)
       }
@@ -87,7 +94,7 @@ export function WeatherWidget({
   }, [dateStr, locationStr])
 
   if (loading) return <div className="animate-pulse w-16 h-4 bg-gray-200 rounded" />
-  if (!weather) return null
+  if (error || !weather) return null
 
   return (
     <div className="flex items-center gap-2 bg-white/50 backdrop-blur-sm px-2 py-1 rounded-lg border border-gray-100 shadow-sm">

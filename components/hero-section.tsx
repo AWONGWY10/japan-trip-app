@@ -81,8 +81,8 @@ export function HeroSection({ lang }: { lang: Lang }) {
         {/* Subtitle */}
         <p className="mt-4 text-sm md:text-base text-white/80 max-w-md leading-relaxed">
           {lang === "en"
-            ? "From Hokkaido's powder snow to Osaka's neon glow. Feb 27 - Mar 11, 2025"
-            : "从北海道的粉雪到大阪的霓虹。2025年2月27日 - 3月11日"}
+            ? "From Hokkaido's powder snow to Osaka's neon glow. Feb 27 - Mar 11, 2026"
+            : "从北海道的粉雪到大阪的霓虹。2026年2月27日 - 3月11日"}
         </p>
 
         {/* Dates badge */}
