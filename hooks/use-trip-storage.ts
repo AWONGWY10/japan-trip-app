@@ -9,11 +9,14 @@ export function useTripNotes(dayId: number) {
   const [notes, setNotes] = useState("")
   const [sharedNotes, setSharedNotes] = useState<Array<{ user_id: string, content: string, user_email?: string }>>([])
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     let ignore = false
     async function load() {
       const { data: { user } } = await getSafeUser()
+      
+      if (!ignore) setIsLoading(false)
       
       if (user) {
         setCurrentUserId(user.id)
@@ -88,7 +91,7 @@ export function useTripNotes(dayId: number) {
     }
   }, [dayId, key])
 
-  return { notes, setNotes: updateDraft, saveNotes, deleteNote, sharedNotes, currentUserId }
+  return { notes, setNotes: updateDraft, saveNotes, deleteNote, sharedNotes, currentUserId, isLoading }
 }
 
 export function useTripBudget(dayId: number) {

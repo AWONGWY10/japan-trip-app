@@ -11,6 +11,7 @@ import { PackingList } from "@/components/packing-list"
 import { TripFooter } from "@/components/trip-footer"
 import { BudgetSummary } from "@/components/budget-summary"
 import { LoginPrompt } from "@/components/login-prompt"
+import { ScrollReveal } from "@/components/scroll-reveal"
 
 function HokkaidoPattern() {
   return (
@@ -115,50 +116,54 @@ export default function Home() {
       <section className="bg-hokkaido-bg relative overflow-hidden">
         <HokkaidoPattern />
         <div className="max-w-lg mx-auto px-4 pt-6 pb-2">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-hokkaido-accent/10 flex items-center justify-center">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="text-hokkaido-accent"
-              >
-                <path
-                  d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-                  fill="currentColor"
-                />
-              </svg>
+          <ScrollReveal>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-hokkaido-accent/10 flex items-center justify-center">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-hokkaido-accent"
+                >
+                  <path
+                    d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-hokkaido-text">
+                  {lang === "en" ? "Part 1: Hokkaido" : "第一部分：北海道"}
+                </h2>
+                <p className="text-xs text-hokkaido-text-muted">
+                  {lang === "en"
+                    ? "Winter wonderland road trip"
+                    : "冬日仙境自驾之旅"}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-hokkaido-text">
-                {lang === "en" ? "Part 1: Hokkaido" : "第一部分：北海道"}
-              </h2>
-              <p className="text-xs text-hokkaido-text-muted">
-                {lang === "en"
-                  ? "Winter wonderland road trip"
-                  : "冬日仙境自驾之旅"}
-              </p>
-            </div>
-          </div>
+          </ScrollReveal>
         </div>
 
         <div className="max-w-lg mx-auto px-4 flex flex-col gap-4 pb-6">
           {hokkaidoDays.map((day, i) => (
-            <DayCard
-              key={day.day}
-              data={day}
-              lang={lang}
-              checkedActivities={checkedActivities}
-              onToggleActivity={toggleActivity}
-              index={i}
-            />
+            <ScrollReveal key={day.day} delay={i * 50}>
+              <DayCard
+                data={day}
+                lang={lang}
+                checkedActivities={checkedActivities}
+                onToggleActivity={toggleActivity}
+              />
+            </ScrollReveal>
           ))}
         </div>
 
         {/* Hokkaido budget summary */}
         <div className="max-w-lg mx-auto px-4 pb-6">
-          <BudgetSummary lang={lang} region="hokkaido" days={hokkaidoDays} />
+          <ScrollReveal delay={200}>
+            <BudgetSummary lang={lang} region="hokkaido" days={hokkaidoDays} />
+          </ScrollReveal>
         </div>
       </section>
 
@@ -166,57 +171,66 @@ export default function Home() {
       <section className="bg-kansai-bg relative overflow-hidden">
         <KansaiPattern />
         <div className="max-w-lg mx-auto px-4 pt-6">
-          <RegionDivider lang={lang} />
+          <ScrollReveal>
+            <RegionDivider lang={lang} />
+          </ScrollReveal>
         </div>
 
         <div className="max-w-lg mx-auto px-4 pt-2 pb-2">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-kansai-accent/10 flex items-center justify-center">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="text-kansai-accent"
-              >
-                <path
-                  d="M13 10V3L4 14H11V21L20 10H13Z"
-                  fill="currentColor"
-                />
-              </svg>
+          <ScrollReveal>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-kansai-accent/10 flex items-center justify-center">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-kansai-accent"
+                >
+                  <path
+                    d="M13 10V3L4 14H11V21L20 10H13Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-kansai-text">
+                  {lang === "en" ? "Part 2: Kansai" : "第二部分：关西"}
+                </h2>
+                <p className="text-xs text-kansai-text-muted">
+                  {lang === "en"
+                    ? "Neon nights & ancient temples"
+                    : "霓虹夜色与古寺"}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-kansai-text">
-                {lang === "en" ? "Part 2: Kansai" : "第二部分：关西"}
-              </h2>
-              <p className="text-xs text-kansai-text-muted">
-                {lang === "en"
-                  ? "Neon nights & ancient temples"
-                  : "霓虹夜色与古寺"}
-              </p>
-            </div>
-          </div>
+          </ScrollReveal>
         </div>
 
+        {/* Kansai Days - Vertical Layout with Scroll Reveal */}
         <div className="max-w-lg mx-auto px-4 flex flex-col gap-4 pb-6">
           {kansaiDays.map((day, i) => (
-            <DayCard
-              key={day.day}
-              data={day}
-              lang={lang}
-              checkedActivities={checkedActivities}
-              onToggleActivity={toggleActivity}
-              index={i}
-            />
+            <ScrollReveal key={day.day} delay={i * 50}>
+              <DayCard
+                data={day}
+                lang={lang}
+                checkedActivities={checkedActivities}
+                onToggleActivity={toggleActivity}
+              />
+            </ScrollReveal>
           ))}
         </div>
 
         {/* Kansai budget summary */}
         <div className="max-w-lg mx-auto px-4 pb-6">
-          <BudgetSummary lang={lang} region="kansai" days={kansaiDays} />
+          <ScrollReveal delay={200}>
+            <BudgetSummary lang={lang} region="kansai" days={kansaiDays} />
+          </ScrollReveal>
         </div>
 
-        <TripFooter lang={lang} />
+        <ScrollReveal>
+          <TripFooter lang={lang} />
+        </ScrollReveal>
       </section>
 
       {/* Floating navigation */}

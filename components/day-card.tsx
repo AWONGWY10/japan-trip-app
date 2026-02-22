@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { Check, Sparkles, MapPin, Hotel, StickyNote, Wallet, ChevronDown, GripVertical, Pencil, Save, X, ExternalLink, User, Trash2, Snowflake, Waves } from "lucide-react"
+import Link from "next/link"
+import { Check, Sparkles, MapPin, Hotel, StickyNote, Wallet, ChevronDown, GripVertical, Pencil, Save, X, ExternalLink, User, Trash2, Snowflake, Waves, Lock } from "lucide-react"
 import * as LucideIcons from "lucide-react"
 import type { DayData, Activity } from "@/lib/itinerary-data"
 import { MapsSpotAdder } from "@/components/maps-spot"
@@ -274,7 +275,7 @@ function NotesSection({
   lang: Lang
   region: "hokkaido" | "kansai"
 }) {
-  const { notes, setNotes, saveNotes, deleteNote, sharedNotes, currentUserId } = useTripNotes(dayId)
+  const { notes, setNotes, saveNotes, deleteNote, sharedNotes, currentUserId, isLoading } = useTripNotes(dayId)
   const { budget, setBudget } = useTripBudget(dayId)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -329,7 +330,31 @@ function NotesSection({
         </span>
       </div>
 
-      <div className="p-3 flex flex-col gap-3">
+      <div className="p-3 flex flex-col gap-3 relative">
+        {/* Guest Overlay */}
+        {!isLoading && !currentUserId && (
+          <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[1px] flex items-center justify-center rounded-lg">
+            <div className="bg-white/90 p-4 rounded-xl shadow-lg border border-gray-100 text-center flex flex-col items-center gap-2">
+              <div className={`p-2 rounded-full ${isHokkaido ? "bg-hokkaido-accent/10 text-hokkaido-accent" : "bg-kansai-accent/10 text-kansai-accent"}`}>
+                <Lock className="w-4 h-4" />
+              </div>
+              <p className="text-xs font-bold text-gray-600">
+                {lang === "en" ? "Login to edit notes" : "登录以编辑笔记"}
+              </p>
+              <Link 
+                href="/login"
+                className={`text-[10px] font-bold px-4 py-1.5 rounded-full text-white shadow-md transition-transform active:scale-95 ${
+                  isHokkaido 
+                    ? "bg-hokkaido-accent hover:bg-hokkaido-accent/90" 
+                    : "bg-kansai-accent hover:bg-kansai-accent/90"
+                }`}
+              >
+                {lang === "en" ? "Login" : "登录"}
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Budget input */}
         <div className="flex items-center gap-2">
           <div
@@ -447,13 +472,11 @@ export function DayCard({
   lang,
   checkedActivities,
   onToggleActivity,
-  index = 0,
 }: {
   data: DayData
   lang: Lang
   checkedActivities: Set<string>
   onToggleActivity: (id: string) => void
-  index?: number
 }) {
   const [isExpanded, setIsExpanded] = useState(data.day <= 2)
   // Optimization: Only render heavy details (notes/spots) after the card has been expanded once.
@@ -491,8 +514,7 @@ export function DayCard({
   return (
     <div
       id={`day-${data.day}`}
-      style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
-      className={`rounded-2xl overflow-hidden transition-all duration-300 animate-fade-in-up group ${
+      className={`rounded-2xl overflow-hidden transition-all duration-300 group active:scale-[0.98] ${
         isHokkaido
           ? "bg-hokkaido-card shadow-[0_2px_16px_rgba(74,158,218,0.08)]"
           : "bg-kansai-card shadow-[0_2px_16px_rgba(255,107,61,0.12)]"
