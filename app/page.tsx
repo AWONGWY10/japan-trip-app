@@ -54,6 +54,10 @@ function KansaiPattern() {
 
 type Lang = "en" | "zh"
 
+// Move these outside the component so they remain stable references
+const hokkaidoDays = itineraryData.filter((d) => d.region === "hokkaido")
+const kansaiDays = itineraryData.filter((d) => d.region === "kansai")
+
 export default function Home() {
   const [lang, setLang] = useState<Lang>("zh")
   const [checkedActivities, setCheckedActivities] = useState<Set<string>>(
@@ -97,10 +101,6 @@ export default function Home() {
   const toggleLang = useCallback(() => {
     setLang((prev) => (prev === "en" ? "zh" : "en"))
   }, [])
-
-  // Separate days into regions
-  const hokkaidoDays = itineraryData.filter((d) => d.region === "hokkaido")
-  const kansaiDays = itineraryData.filter((d) => d.region === "kansai")
 
   return (
     <main className="min-h-screen">

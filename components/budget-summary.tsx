@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import { Wallet, TrendingUp } from "lucide-react"
 import type { DayData } from "@/lib/itinerary-data"
 import { useAllTripBudgets } from "@/hooks/use-trip-storage"
@@ -15,7 +16,7 @@ export function BudgetSummary({
   region: "hokkaido" | "kansai"
   days: DayData[]
 }) {
-  const dayIds = days.map(d => d.day)
+  const dayIds = useMemo(() => days.map(d => d.day), [days])
   const { budgets: dayBudgets, total: totalBudget } = useAllTripBudgets(dayIds)
 
   const isHokkaido = region === "hokkaido"

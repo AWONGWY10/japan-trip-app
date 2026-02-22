@@ -262,7 +262,8 @@ export function useAllTripBudgets(dayIds: number[]) {
     checkBudgets()
 
     // Removed polling to prevent "Navigator LockManager" timeout errors
-  }, [dayIds]) // In a real app, we'd memoize dayIds, but for this static list it's okay
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(dayIds)]) 
 
   return { budgets, total }
 }
