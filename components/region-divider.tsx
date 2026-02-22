@@ -17,7 +17,7 @@ export function RegionDivider({ lang }: { lang: Lang }) {
       <div className="absolute inset-0 bg-gradient-to-r from-[#1a2332]/80 to-[#1a1118]/80" />
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
         <div className="w-12 h-12 rounded-full bg-kansai-accent/20 flex items-center justify-center mb-3">
-          <Plane className="w-6 h-6 text-kansai-accent" />
+          <Plane className="w-6 h-6 text-kansai-accent animate-pulse" />
         </div>
         <h2 className="text-2xl md:text-3xl font-bold text-white">
           {lang === "en" ? "Welcome to Kansai" : "欢迎来到关西"}

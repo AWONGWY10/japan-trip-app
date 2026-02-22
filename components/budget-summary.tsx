@@ -23,7 +23,7 @@ export function BudgetSummary({
 
   return (
     <div
-      className={`rounded-2xl overflow-hidden ${
+      className={`rounded-2xl overflow-hidden animate-fade-in-up ${
         isHokkaido
           ? "bg-hokkaido-card shadow-[0_2px_16px_rgba(74,158,218,0.08)]"
           : "bg-kansai-card shadow-[0_2px_16px_rgba(255,107,61,0.12)]"

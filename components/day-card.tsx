@@ -7,6 +7,7 @@ import * as LucideIcons from "lucide-react"
 import type { DayData, Activity } from "@/lib/itinerary-data"
 import { MapsSpotAdder } from "@/components/maps-spot"
 import { useTripNotes, useTripBudget, useTripActivities } from "@/hooks/use-trip-storage"
+// REMOVED: import { WeatherWidget } from "@/components/weather-widget"
 
 type Lang = "en" | "zh"
 
@@ -446,11 +447,13 @@ export function DayCard({
   lang,
   checkedActivities,
   onToggleActivity,
+  index = 0,
 }: {
   data: DayData
   lang: Lang
   checkedActivities: Set<string>
   onToggleActivity: (id: string) => void
+  index?: number
 }) {
   const [isExpanded, setIsExpanded] = useState(data.day <= 2)
   // Optimization: Only render heavy details (notes/spots) after the card has been expanded once.
@@ -488,7 +491,8 @@ export function DayCard({
   return (
     <div
       id={`day-${data.day}`}
-      className={`rounded-2xl overflow-hidden transition-all duration-300 ${
+      style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
+      className={`rounded-2xl overflow-hidden transition-all duration-300 animate-fade-in-up group ${
         isHokkaido
           ? "bg-hokkaido-card shadow-[0_2px_16px_rgba(74,158,218,0.08)]"
           : "bg-kansai-card shadow-[0_2px_16px_rgba(255,107,61,0.12)]"
@@ -500,7 +504,7 @@ export function DayCard({
           src={data.cardImage}
           alt={data.title.en}
           fill
-          className="object-cover"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
         {/* Gradient overlay */}
         <div

@@ -10,6 +10,7 @@ import { FloatingNav } from "@/components/floating-nav"
 import { PackingList } from "@/components/packing-list"
 import { TripFooter } from "@/components/trip-footer"
 import { BudgetSummary } from "@/components/budget-summary"
+import { LoginPrompt } from "@/components/login-prompt"
 
 function HokkaidoPattern() {
   return (
@@ -143,13 +144,14 @@ export default function Home() {
         </div>
 
         <div className="max-w-lg mx-auto px-4 flex flex-col gap-4 pb-6">
-          {hokkaidoDays.map((day) => (
+          {hokkaidoDays.map((day, i) => (
             <DayCard
               key={day.day}
               data={day}
               lang={lang}
               checkedActivities={checkedActivities}
               onToggleActivity={toggleActivity}
+              index={i}
             />
           ))}
         </div>
@@ -197,13 +199,14 @@ export default function Home() {
         </div>
 
         <div className="max-w-lg mx-auto px-4 flex flex-col gap-4 pb-6">
-          {kansaiDays.map((day) => (
+          {kansaiDays.map((day, i) => (
             <DayCard
               key={day.day}
               data={day}
               lang={lang}
               checkedActivities={checkedActivities}
               onToggleActivity={toggleActivity}
+              index={i}
             />
           ))}
         </div>
@@ -222,6 +225,9 @@ export default function Home() {
         onToggleLang={toggleLang}
         onShowPackingList={() => setPackingListOpen(true)}
       />
+
+      {/* Login Prompt for guests */}
+      <LoginPrompt lang={lang} />
 
       {/* Packing list modal */}
       <PackingList
