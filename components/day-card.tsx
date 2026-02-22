@@ -7,7 +7,6 @@ import * as LucideIcons from "lucide-react"
 import type { DayData, Activity } from "@/lib/itinerary-data"
 import { MapsSpotAdder } from "@/components/maps-spot"
 import { useTripNotes, useTripBudget, useTripActivities } from "@/hooks/use-trip-storage"
-import { WeatherWidget } from "@/components/weather-widget"
 
 type Lang = "en" | "zh"
 
@@ -566,13 +565,6 @@ export function DayCard({
               <span className="truncate max-w-[180px]">{data.accommodation[lang]}</span>
             </div>
           )}
-
-          {/* Weather Widget */}
-          <WeatherWidget 
-            dateStr={data.date} 
-            locationStr={data.location.en} 
-            lang={lang} 
-          />
         </div>
 
         <div className="flex items-center gap-2">
