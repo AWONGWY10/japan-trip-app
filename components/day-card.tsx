@@ -454,6 +454,13 @@ export function DayCard({
   onToggleActivity: (id: string) => void
 }) {
   const [isExpanded, setIsExpanded] = useState(data.day <= 2)
+  // Optimization: Only render heavy details (notes/spots) after the card has been expanded once.
+  const [hasRendered, setHasRendered] = useState(data.day <= 2)
+
+  useEffect(() => {
+    if (isExpanded) setHasRendered(true)
+  }, [isExpanded])
+
   const { activities, setActivities } = useTripActivities(data.day, data.activities)
   
   const completedCount = activities.filter((a) =>
@@ -625,43 +632,47 @@ export function DayCard({
           isExpanded ? "max-h-[3000px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        {/* Activities list */}
-        <div className="px-3 pb-2 flex flex-col gap-1">
-          {activities.map((activity, index) => (
-            <ActivityItem
-              key={activity.id}
-              activity={activity}
-              lang={lang}
-              region={data.region}
-              checked={checkedActivities.has(activity.id)}
-              onToggle={() => onToggleActivity(activity.id)}
-              onUpdate={(updated) => {
-                const newActivities = [...activities]
-                newActivities[index] = updated
-                setActivities(newActivities)
-              }}
-              isDraggable={true}
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => handleDrop(e, index)}
-            />
-          ))}
-        </div>
+        {hasRendered && (
+          <>
+            {/* Activities list */}
+            <div className="px-3 pb-2 flex flex-col gap-1">
+              {activities.map((activity, index) => (
+                <ActivityItem
+                  key={activity.id}
+                  activity={activity}
+                  lang={lang}
+                  region={data.region}
+                  checked={checkedActivities.has(activity.id)}
+                  onToggle={() => onToggleActivity(activity.id)}
+                  onUpdate={(updated) => {
+                    const newActivities = [...activities]
+                    newActivities[index] = updated
+                    setActivities(newActivities)
+                  }}
+                  isDraggable={true}
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => handleDrop(e, index)}
+                />
+              ))}
+            </div>
 
-        {/* Google Maps spot adder */}
-        <MapsSpotAdder dayId={data.day} lang={lang} region={data.region} />
+            {/* Google Maps spot adder */}
+            <MapsSpotAdder dayId={data.day} lang={lang} region={data.region} />
 
-        {/* Notes & budget section */}
-        <NotesSection dayId={data.day} lang={lang} region={data.region} />
+            {/* Notes & budget section */}
+            <NotesSection dayId={data.day} lang={lang} region={data.region} />
 
-        {/* Decorative Watermark */}
-        <div className="absolute bottom-0 right-0 pointer-events-none opacity-[0.03] overflow-hidden">
-          {isHokkaido ? (
-            <Snowflake className="w-48 h-48 -mb-10 -mr-10 text-hokkaido-text" />
-          ) : (
-            <Waves className="w-48 h-48 -mb-10 -mr-10 text-kansai-text" />
-          )}
-        </div>
+            {/* Decorative Watermark */}
+            <div className="absolute bottom-0 right-0 pointer-events-none opacity-[0.03] overflow-hidden">
+              {isHokkaido ? (
+                <Snowflake className="w-48 h-48 -mb-10 -mr-10 text-hokkaido-text" />
+              ) : (
+                <Waves className="w-48 h-48 -mb-10 -mr-10 text-kansai-text" />
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
