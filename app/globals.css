@@ -1,0 +1,172 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #f0f6fc;
+  --foreground: #1a2332;
+  --card: #ffffff;
+  --card-foreground: #1a2332;
+  --popover: #ffffff;
+  --popover-foreground: #1a2332;
+  --primary: #4a9eda;
+  --primary-foreground: #ffffff;
+  --secondary: #e8f2fb;
+  --secondary-foreground: #1a2332;
+  --muted: #e8f2fb;
+  --muted-foreground: #5a7a96;
+  --accent: #c0ddf0;
+  --accent-foreground: #1a2332;
+  --destructive: #e74c3c;
+  --destructive-foreground: #ffffff;
+  --border: #d0e4f2;
+  --input: #d0e4f2;
+  --ring: #4a9eda;
+  --chart-1: #4a9eda;
+  --chart-2: #f97066;
+  --chart-3: #3ecf8e;
+  --chart-4: #f5a623;
+  --chart-5: #c084fc;
+  --radius: 0.75rem;
+
+  /* Hokkaido theme tokens */
+  --hokkaido-bg: #e8f2fb;
+  --hokkaido-card: #ffffff;
+  --hokkaido-accent: #4a9eda;
+  --hokkaido-accent-soft: #c0ddf0;
+  --hokkaido-text: #1a2332;
+  --hokkaido-text-muted: #5a7a96;
+
+  /* Kansai theme tokens */
+  --kansai-bg: #1a1118;
+  --kansai-card: #2a1f28;
+  --kansai-accent: #ff6b3d;
+  --kansai-accent-soft: #ff9eb8;
+  --kansai-text: #fff5f0;
+  --kansai-text-muted: #c9a8b8;
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-hokkaido-bg: var(--hokkaido-bg);
+  --color-hokkaido-card: var(--hokkaido-card);
+  --color-hokkaido-accent: var(--hokkaido-accent);
+  --color-hokkaido-accent-soft: var(--hokkaido-accent-soft);
+  --color-hokkaido-text: var(--hokkaido-text);
+  --color-hokkaido-text-muted: var(--hokkaido-text-muted);
+
+  --color-kansai-bg: var(--kansai-bg);
+  --color-kansai-card: var(--kansai-card);
+  --color-kansai-accent: var(--kansai-accent);
+  --color-kansai-accent-soft: var(--kansai-accent-soft);
+  --color-kansai-text: var(--kansai-text);
+  --color-kansai-text-muted: var(--kansai-text-muted);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+/* Checkbox celebration animation */
+@keyframes celebrate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.animate-celebrate {
+  animation: celebrate 0.4s ease-out;
+}
+
+/* Fade in on scroll */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Snowflake animation */
+@keyframes snowfall {
+  0% { transform: translateY(-10vh) translateX(0); opacity: 1; }
+  100% { transform: translateY(100vh) translateX(20px); opacity: 0; }
+}
+.animate-snowfall {
+  animation: snowfall linear infinite;
+}
+
+/* Slide down for new spots */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+}
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
