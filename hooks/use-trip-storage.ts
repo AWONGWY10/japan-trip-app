@@ -366,7 +366,8 @@ export function useTripActivities(dayId: number, initialActivities: Activity[]) 
       const { error } = await supabase.from("day_activities").upsert({ 
         user_id: user.id, 
         day_id: dayId, 
-        activities_json: newActivities 
+        activities_json: newActivities,
+        updated_at: new Date().toISOString()
       })
       
       if (error) console.error("Failed to save activities:", error)

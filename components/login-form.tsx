@@ -23,7 +23,11 @@ export function LoginForm() {
     })
 
     if (error) {
-      setMessage({ type: 'error', text: error.message })
+      if (error.message.includes("rate limit")) {
+        setMessage({ type: 'error', text: "Too many login attempts. Please wait a bit or check your inbox for a previous link." })
+      } else {
+        setMessage({ type: 'error', text: error.message })
+      }
     } else {
       setMessage({ type: 'success', text: 'Check your email for the login link!' })
     }
