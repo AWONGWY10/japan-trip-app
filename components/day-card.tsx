@@ -32,6 +32,7 @@ function ActivityItem({
   onMove,
   isFirst,
   isLast,
+  onRemove,
 }: {
   activity: Activity
   lang: Lang
@@ -46,6 +47,7 @@ function ActivityItem({
   onMove: (direction: 'up' | 'down') => void
   isFirst: boolean
   isLast: boolean
+  onRemove: () => void
 }) {
   const [justChecked, setJustChecked] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -143,6 +145,13 @@ function ActivityItem({
           </div>
 
           <div className="flex gap-2">
+            <button 
+              onClick={onRemove}
+              className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100"
+              title="Delete Activity"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
             <button onClick={() => setIsEditing(false)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
               <X className="w-4 h-4" />
             </button>
@@ -594,6 +603,24 @@ export function DayCard({
     setActivities(newActivities)
   }
 
+  const handleAddSpot = (name: string, url: string, lat?: number, lng?: number) => {
+    const newActivity: Activity = {
+      id: `custom-${Date.now()}`,
+      name: { en: name, zh: name },
+      description: { en: "", zh: "" },
+      type: "main",
+      icon: "MapPin",
+      link: url
+    }
+    setActivities([...activities, newActivity])
+  }
+
+  const handleRemoveActivity = (index: number) => {
+    const newActivities = [...activities]
+    newActivities.splice(index, 1)
+    setActivities(newActivities)
+  }
+
   return (
     <div
       id={`day-${data.day}`}
@@ -757,12 +784,17 @@ export function DayCard({
                   onMove={(dir) => handleMove(index, dir)}
                   isFirst={index === 0}
                   isLast={index === activities.length - 1}
+                  onRemove={() => handleRemoveActivity(index)}
                 />
               ))}
             </div>
 
             {/* Google Maps spot adder */}
-            <MapsSpotAdder dayId={data.day} lang={lang} region={data.region} />
+            <MapsSpotAdder 
+              lang={lang} 
+              region={data.region} 
+              onAddSpot={handleAddSpot}
+            />
 
             {/* Notes & budget section */}
             <NotesSection dayId={data.day} lang={lang} region={data.region} />

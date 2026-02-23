@@ -1,9 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { MapPin, Plus, Trash2, ExternalLink, Loader2, Navigation, X } from "lucide-react"
-import type { CustomSpot } from "@/lib/itinerary-data"
-import { useTripSpots } from "@/hooks/use-trip-storage"
+import { Plus, Loader2, X } from "lucide-react"
 
 type Lang = "en" | "zh"
 
@@ -89,116 +87,15 @@ function parseGoogleMapsUrl(input: string): { name: string; lat?: number; lng?: 
   }
 }
 
-function SpotCard({
-  spot,
-  region,
-  onDelete,
-}: {
-  spot: CustomSpot
-  region: "hokkaido" | "kansai"
-  onDelete: () => void
-}) {
-  const isHokkaido = region === "hokkaido"
-
-  return (
-    <div
-      className={`group flex items-start gap-3 p-3 rounded-xl border-2 border-dashed transition-all animate-slide-down ${
-        isHokkaido
-          ? "border-hokkaido-accent/30 bg-hokkaido-accent/5 hover:border-hokkaido-accent/50"
-          : "border-kansai-accent/30 bg-kansai-accent/5 hover:border-kansai-accent/50"
-      }`}
-    >
-      {/* Map pin with pulse */}
-      <div className="flex-shrink-0 relative mt-0.5">
-        <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-            isHokkaido ? "bg-hokkaido-accent/20" : "bg-kansai-accent/20"
-          }`}
-        >
-          <Navigation
-            className={`w-4 h-4 ${
-              isHokkaido ? "text-hokkaido-accent" : "text-kansai-accent"
-            }`}
-          />
-        </div>
-        {/* Small "custom" badge */}
-        <div
-          className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold ${
-            isHokkaido
-              ? "bg-hokkaido-accent text-white"
-              : "bg-kansai-accent text-white"
-          }`}
-        >
-          +
-        </div>
-      </div>
-
-      {/* Spot info */}
-      <div className="flex-1 min-w-0">
-        <span
-          className={`font-medium text-sm leading-snug block ${
-            isHokkaido ? "text-hokkaido-text" : "text-kansai-text"
-          }`}
-        >
-          {spot.name}
-        </span>
-        
-        <div className="flex items-center gap-2 mt-1">
-          {spot.lat && spot.lng && (
-            <span
-              className={`text-[10px] font-mono ${
-                isHokkaido ? "text-hokkaido-text-muted/60" : "text-kansai-text-muted/60"
-              }`}
-            >
-              {spot.lat.toFixed(4)}, {spot.lng.toFixed(4)}
-            </span>
-          )}
-          <a
-            href={spot.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className={`inline-flex items-center gap-1 text-[10px] font-semibold transition-colors ${
-              isHokkaido
-                ? "text-hokkaido-accent hover:text-hokkaido-accent/80"
-                : "text-kansai-accent hover:text-kansai-accent/80"
-            }`}
-          >
-            <ExternalLink className="w-3 h-3" />
-            Google Maps
-          </a>
-        </div>
-      </div>
-
-      {/* Delete button */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          onDelete()
-        }}
-        className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all ${
-          isHokkaido
-            ? "hover:bg-red-50 text-red-400 hover:text-red-500"
-            : "hover:bg-red-900/20 text-red-400 hover:text-red-300"
-        }`}
-        aria-label="Remove spot"
-      >
-        <Trash2 className="w-3.5 h-3.5" />
-      </button>
-    </div>
-  )
-}
-
 export function MapsSpotAdder({
-  dayId,
   lang,
   region,
+  onAddSpot,
 }: {
-  dayId: number
   lang: Lang
   region: "hokkaido" | "kansai"
+  onAddSpot: (name: string, url: string, lat?: number, lng?: number) => void
 }) {
-  const { spots, addSpot, removeSpot } = useTripSpots(dayId)
   const [inputUrl, setInputUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -246,7 +143,7 @@ export function MapsSpotAdder({
         return
       }
 
-      addSpot(parsed.name, parsed.url, parsed.lat, parsed.lng)
+      onAddSpot(parsed.name, parsed.url, parsed.lat, parsed.lng)
       
       setInputUrl("")
       setIsLoading(false)
@@ -255,7 +152,7 @@ export function MapsSpotAdder({
 
   const handleNameSubmit = () => {
     if (!pendingParsed || !customName.trim()) return
-    addSpot(
+    onAddSpot(
       customName.trim(),
       pendingParsed.url,
       pendingParsed.lat,
@@ -287,36 +184,6 @@ export function MapsSpotAdder({
 
   return (
     <div className="mx-4 mb-4">
-      {/* Custom spots list */}
-      {spots.length > 0 && (
-        <div className="flex flex-col gap-2 mb-3">
-          <div className="flex items-center gap-2 mb-1">
-            <MapPin
-              className={`w-3.5 h-3.5 ${
-                isHokkaido ? "text-hokkaido-accent" : "text-kansai-accent"
-              }`}
-            />
-            <span
-              className={`text-[10px] font-semibold uppercase tracking-wider ${
-                isHokkaido ? "text-hokkaido-accent" : "text-kansai-accent"
-              }`}
-            >
-              {lang === "en"
-                ? `Custom Spots (${spots.length})`
-                : `自定义地点 (${spots.length})`}
-            </span>
-          </div>
-          {spots.map((spot) => (
-            <SpotCard
-              key={spot.id}
-              spot={spot}
-              region={region}
-              onDelete={() => removeSpot(spot.id)}
-            />
-          ))}
-        </div>
-      )}
-
       {/* Name input overlay when short link detected */}
       {showNameInput && (
         <div

@@ -310,7 +310,13 @@ export function useTripActivities(dayId: number, initialActivities: Activity[]) 
     
     const { data: { user } } = await getSafeUser()
     if (user) {
-      await supabase.from("day_activities").upsert({ user_id: user.id, day_id: dayId, activities_json: newActivities })
+      const { error } = await supabase.from("day_activities").upsert({ 
+        user_id: user.id, 
+        day_id: dayId, 
+        activities_json: newActivities 
+      })
+      
+      if (error) console.error("Failed to save activities:", error)
     } else {
       localStorage.setItem(key, JSON.stringify(newActivities))
     }
