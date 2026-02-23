@@ -307,6 +307,7 @@ function NotesSection({
   const { notes, setNotes, saveNotes, deleteNote, sharedNotes, currentUserId, isLoading } = useTripNotes(dayId)
   const { budget, setBudget } = useTripBudget(dayId)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
   // Auto-resize textarea
   useEffect(() => {
@@ -316,18 +317,27 @@ function NotesSection({
     }
   }, [notes])
 
-  const handleSave = () => {
-    saveNotes()
-    // Optional: Show a toast or visual feedback here
+  const handleSave = async () => {
+    await saveNotes()
+    setIsEditing(false)
+  }
+
+  const handleCancel = () => {
+    // Revert to saved version from sharedNotes if available
+    const mySavedNote = sharedNotes.find(n => n.user_id === currentUserId)?.content || ""
+    setNotes(mySavedNote)
+    setIsEditing(false)
   }
 
   const handleDelete = () => {
     if (confirm(lang === "en" ? "Delete your note?" : "删除您的笔记？")) {
       deleteNote()
+      setIsEditing(false)
     }
   }
 
   const isHokkaido = region === "hokkaido"
+  const hasNote = notes && notes.trim().length > 0
 
   return (
     <div
@@ -452,44 +462,78 @@ function NotesSection({
         )}
 
         {/* Notes textarea */}
-        <div className="relative">
-          <textarea
-            ref={textareaRef}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder={
-              lang === "en"
-                ? "Write your note here..."
-                : "在这里输入笔记..."
-            }
-            rows={2}
-            className={`w-full px-3 py-2 pr-16 rounded-lg text-base md:text-xs leading-relaxed border resize-none transition-colors focus:outline-none ${
-              isHokkaido
-                ? "bg-hokkaido-card border-hokkaido-accent-soft/50 text-hokkaido-text placeholder:text-hokkaido-text-muted/50 focus:border-hokkaido-accent"
-                : "bg-kansai-card border-kansai-accent/20 text-kansai-text placeholder:text-kansai-text-muted/50 focus:border-kansai-accent"
-            }`}
-          />
-          <div className="absolute bottom-2 right-2 flex items-center gap-1">
-            {notes && (
-              <button
-                onClick={handleDelete}
-                className="p-1.5 rounded text-red-400 hover:bg-red-50 transition-colors"
-                title={lang === "en" ? "Delete note" : "删除笔记"}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            )}
-            <button
-              onClick={handleSave}
-              className={`px-2 py-1 rounded text-[10px] font-bold text-white transition-transform active:scale-95 ${
-                isHokkaido
-                  ? "bg-hokkaido-accent hover:bg-hokkaido-accent/90"
-                  : "bg-kansai-accent hover:bg-kansai-accent/90"
-              }`}
-            >
-              {lang === "en" ? "SAVE" : "保存"}
-            </button>
-          </div>
+        <div className="relative min-h-[60px]">
+          {isLoading ? (
+            <div className="w-full h-16 bg-gray-50 animate-pulse rounded-lg" />
+          ) : isEditing || !hasNote ? (
+            // Edit Mode (or Empty State)
+            <>
+              <textarea
+                ref={textareaRef}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                onFocus={() => setIsEditing(true)}
+                placeholder={
+                  lang === "en"
+                    ? "Write your note here..."
+                    : "在这里输入笔记..."
+                }
+                rows={2}
+                className={`w-full px-3 py-2 pr-16 rounded-lg text-base md:text-xs leading-relaxed border resize-none transition-colors focus:outline-none ${
+                  isHokkaido
+                    ? "bg-hokkaido-card border-hokkaido-accent-soft/50 text-hokkaido-text placeholder:text-hokkaido-text-muted/50 focus:border-hokkaido-accent"
+                    : "bg-kansai-card border-kansai-accent/20 text-kansai-text placeholder:text-kansai-text-muted/50 focus:border-kansai-accent"
+                }`}
+              />
+              {isEditing && (
+                <div className="absolute bottom-2 right-2 flex items-center gap-1">
+                  {hasNote && (
+                    <button
+                      onClick={handleCancel}
+                      className="px-2 py-1 rounded text-[10px] font-bold text-gray-500 hover:bg-gray-100 transition-colors"
+                    >
+                      {lang === "en" ? "Cancel" : "取消"}
+                    </button>
+                  )}
+                  <button
+                    onClick={handleSave}
+                    className={`px-2 py-1 rounded text-[10px] font-bold text-white transition-transform active:scale-95 ${
+                      isHokkaido
+                        ? "bg-hokkaido-accent hover:bg-hokkaido-accent/90"
+                        : "bg-kansai-accent hover:bg-kansai-accent/90"
+                    }`}
+                  >
+                    {lang === "en" ? "SAVE" : "保存"}
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            // View Mode
+            <div className={`p-3 rounded-lg border text-xs relative group ${
+                isHokkaido 
+                  ? "bg-white border-hokkaido-accent-soft/30 text-hokkaido-text" 
+                  : "bg-white border-kansai-accent/20 text-kansai-text"
+            }`}>
+               <div className="whitespace-pre-wrap leading-relaxed">{notes}</div>
+               <div className="absolute top-2 right-2 flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="p-1.5 rounded hover:bg-gray-100 text-gray-500 transition-colors"
+                    title={lang === "en" ? "Edit" : "编辑"}
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="p-1.5 rounded hover:bg-red-50 text-red-400 transition-colors"
+                    title={lang === "en" ? "Delete" : "删除"}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+               </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

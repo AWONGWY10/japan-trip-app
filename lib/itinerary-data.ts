@@ -396,7 +396,7 @@ export const itineraryData: DayData[] = [
         id: "d7-1",
         name: {
           en: "Hill of the Buddha (Atama Daibutsu)",
-          zh: "真�的内�的野陵园（头大佛）",
+          zh: "真的内的野陵园（头大佛）",
         },
         description: {
           en: "Ando Tadao's masterpiece: a giant Buddha head emerging from a lavender-covered hill. In winter, pure snow-white zen.",
@@ -639,7 +639,7 @@ export const itineraryData: DayData[] = [
         name: { en: "Fushimi Inari Shrine", zh: "伏见稻荷大社" },
         description: {
           en: "The iconic thousand vermillion torii gates. Go early morning for the best photos without crowds.",
-          zh: "标志性的千本�的居。早上早去越容易拍到没人的空镜。",
+          zh: "标志性的千本的居。早上早去越容易拍到没人的空镜。",
         },
         type: "main",
         icon: "Landmark",
