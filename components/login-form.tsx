@@ -15,14 +15,19 @@ export function LoginForm() {
     setLoading(true)
     setMessage(null)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) {
-      setMessage({ type: 'error', text: error.message })
-    } else {
-      window.location.href = "/" // Redirect on success
+      if (error) {
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        window.location.href = "/" // Redirect on success
+      }
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || "An unexpected error occurred" })
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

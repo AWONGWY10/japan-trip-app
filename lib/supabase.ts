@@ -26,6 +26,9 @@ const getSupabaseClient = () => {
     auth: {
       getUser: async () => ({ data: { user: null }, error: null }),
       signInWithOtp: async () => ({ error: { message: "Supabase not configured. Check .env.local" } }),
+      signInWithPassword: async () => ({ error: { message: "Supabase not configured. Check .env.local" } }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      signOut: async () => {},
     },
     from: () => ({
       select: () => chain,
