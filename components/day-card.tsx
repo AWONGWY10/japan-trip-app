@@ -553,7 +553,7 @@ export function DayCard({
   return (
     <div
       id={`day-${data.day}`}
-      className={`rounded-2xl overflow-hidden transition-all duration-300 group active:scale-[0.98] ${
+      className={`rounded-2xl overflow-hidden transition-all duration-300 group ${
         isHokkaido
           ? "bg-hokkaido-card shadow-[0_2px_16px_rgba(74,158,218,0.08)]"
           : "bg-kansai-card shadow-[0_2px_16px_rgba(255,107,61,0.12)]"

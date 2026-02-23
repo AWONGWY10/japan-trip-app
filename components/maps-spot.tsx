@@ -393,6 +393,11 @@ export function MapsSpotAdder({
         <input
           ref={inputRef}
           type="text"
+          inputMode="url"
+          enterKeyHint="go"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
           value={inputUrl}
           onChange={(e) => {
             setInputUrl(e.target.value)
