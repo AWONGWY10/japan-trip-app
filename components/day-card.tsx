@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Check, Sparkles, MapPin, Hotel, StickyNote, Wallet, ChevronDown, GripVertical, Pencil, Save, X, ExternalLink, User, Trash2, Snowflake, Waves, Lock } from "lucide-react"
+import { Check, Sparkles, MapPin, Hotel, StickyNote, Wallet, ChevronDown, GripVertical, Pencil, Save, X, ExternalLink, User, Trash2, Snowflake, Waves, Lock, ArrowUp, ArrowDown } from "lucide-react"
 import * as LucideIcons from "lucide-react"
 import type { DayData, Activity } from "@/lib/itinerary-data"
 import { MapsSpotAdder } from "@/components/maps-spot"
@@ -29,6 +29,9 @@ function ActivityItem({
   onDragStart,
   onDragOver,
   onDrop,
+  onMove,
+  isFirst,
+  isLast,
 }: {
   activity: Activity
   lang: Lang
@@ -40,6 +43,9 @@ function ActivityItem({
   onDragStart: (e: React.DragEvent) => void
   onDragOver: (e: React.DragEvent) => void
   onDrop: (e: React.DragEvent) => void
+  onMove: (direction: 'up' | 'down') => void
+  isFirst: boolean
+  isLast: boolean
 }) {
   const [justChecked, setJustChecked] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -93,7 +99,7 @@ function ActivityItem({
           <input 
             value={editName} 
             onChange={(e) => setEditName(e.target.value)}
-            className="text-sm font-medium p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-hokkaido-accent/50"
+            className="text-base md:text-sm font-medium p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-hokkaido-accent/50"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -102,7 +108,7 @@ function ActivityItem({
             value={editDesc} 
             onChange={(e) => setEditDesc(e.target.value)}
             rows={2}
-            className="text-xs p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-hokkaido-accent/50"
+            className="text-base md:text-xs p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-hokkaido-accent/50"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -111,16 +117,39 @@ function ActivityItem({
             value={editLink} 
             onChange={(e) => setEditLink(e.target.value)}
             placeholder="https://maps.google.com/..."
-            className="text-xs p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-hokkaido-accent/50 font-mono"
+            className="text-base md:text-xs p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-hokkaido-accent/50 font-mono"
           />
         </div>
-        <div className="flex gap-2 justify-end mt-1">
-          <button onClick={() => setIsEditing(false)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
-            <X className="w-4 h-4" />
-          </button>
-          <button onClick={handleSave} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-hokkaido-accent text-white text-xs font-bold hover:bg-hokkaido-accent/90">
-            <Save className="w-3.5 h-3.5" /> Save
-          </button>
+        
+        <div className="flex items-center justify-between mt-1">
+          {/* Mobile Reordering Controls */}
+          <div className="flex gap-1">
+            <button 
+              onClick={() => onMove('up')} 
+              disabled={isFirst}
+              className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+              title="Move Up"
+            >
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
+            <button 
+              onClick={() => onMove('down')} 
+              disabled={isLast}
+              className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+              title="Move Down"
+            >
+              <ArrowDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="flex gap-2">
+            <button onClick={() => setIsEditing(false)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
+              <X className="w-4 h-4" />
+            </button>
+            <button onClick={handleSave} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-hokkaido-accent text-white text-xs font-bold hover:bg-hokkaido-accent/90">
+              <Save className="w-3.5 h-3.5" /> Save
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -240,7 +269,7 @@ function ActivityItem({
           e.stopPropagation()
           setIsEditing(true)
         }}
-        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-black/5 text-gray-400 hover:text-gray-700 transition-all"
+        className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1.5 rounded-lg hover:bg-black/5 text-gray-400 hover:text-gray-700 transition-all"
       >
         <Pencil className="w-3.5 h-3.5" />
       </button>
@@ -390,7 +419,7 @@ function NotesSection({
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
               placeholder={lang === "en" ? "e.g. 15,000" : "例如 15,000"}
-              className={`w-full pl-7 pr-3 py-1.5 rounded-lg text-xs font-mono border transition-colors focus:outline-none ${
+              className={`w-full pl-7 pr-3 py-1.5 rounded-lg text-base md:text-xs font-mono border transition-colors focus:outline-none ${
                 isHokkaido
                   ? "bg-hokkaido-card border-hokkaido-accent-soft/50 text-hokkaido-text placeholder:text-hokkaido-text-muted/50 focus:border-hokkaido-accent"
                   : "bg-kansai-card border-kansai-accent/20 text-kansai-text placeholder:text-kansai-text-muted/50 focus:border-kansai-accent"
@@ -434,7 +463,7 @@ function NotesSection({
                 : "在这里输入笔记..."
             }
             rows={2}
-            className={`w-full px-3 py-2 pr-16 rounded-lg text-xs leading-relaxed border resize-none transition-colors focus:outline-none ${
+            className={`w-full px-3 py-2 pr-16 rounded-lg text-base md:text-xs leading-relaxed border resize-none transition-colors focus:outline-none ${
               isHokkaido
                 ? "bg-hokkaido-card border-hokkaido-accent-soft/50 text-hokkaido-text placeholder:text-hokkaido-text-muted/50 focus:border-hokkaido-accent"
                 : "bg-kansai-card border-kansai-accent/20 text-kansai-text placeholder:text-kansai-text-muted/50 focus:border-kansai-accent"
@@ -508,6 +537,16 @@ export function DayCard({
     const newActivities = [...activities]
     const [draggedItem] = newActivities.splice(dragIndex, 1)
     newActivities.splice(dropIndex, 0, draggedItem)
+    setActivities(newActivities)
+  }
+
+  const handleMove = (index: number, direction: 'up' | 'down') => {
+    const newActivities = [...activities]
+    if (direction === 'up' && index > 0) {
+      [newActivities[index], newActivities[index - 1]] = [newActivities[index - 1], newActivities[index]]
+    } else if (direction === 'down' && index < activities.length - 1) {
+      [newActivities[index], newActivities[index + 1]] = [newActivities[index + 1], newActivities[index]]
+    }
     setActivities(newActivities)
   }
 
@@ -671,6 +710,9 @@ export function DayCard({
                   onDragStart={(e) => handleDragStart(e, index)}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => handleDrop(e, index)}
+                  onMove={(dir) => handleMove(index, dir)}
+                  isFirst={index === 0}
+                  isLast={index === activities.length - 1}
                 />
               ))}
             </div>

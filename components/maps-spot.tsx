@@ -16,40 +16,43 @@ type Lang = "en" | "zh"
  * - https://maps.app.goo.gl/... (short links - name must be entered manually)
  * - https://goo.gl/maps/... (short links)
  */
-function parseGoogleMapsUrl(url: string): { name: string; lat?: number; lng?: number } | null {
+function parseGoogleMapsUrl(input: string): { name: string; lat?: number; lng?: number; url: string } | null {
   try {
-    // Trim and clean
-    const cleaned = url.trim()
+    // 1. Extract URL if mixed with text (common on mobile share: "Check out this place https://...")
+    const urlMatch = input.match(/https?:\/\/(www\.)?(google\.com\/maps|maps\.google\.com|goo\.gl\/maps|maps\.app\.goo\.gl)[^\s]*/)
+    const url = urlMatch ? urlMatch[0] : input.trim()
 
     // Check if it's a Google Maps URL
     const isGoogleMaps =
-      cleaned.includes("google.com/maps") ||
-      cleaned.includes("maps.google") ||
-      cleaned.includes("goo.gl/maps") ||
-      cleaned.includes("maps.app.goo.gl")
+      url.includes("google.com/maps") ||
+      url.includes("maps.google") ||
+      url.includes("goo.gl/maps") ||
+      url.includes("maps.app.goo.gl")
 
     if (!isGoogleMaps) return null
 
     // Try to extract from /place/Name/@lat,lng pattern
-    const placeMatch = cleaned.match(/\/place\/([^/@]+)\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/)
+    const placeMatch = url.match(/\/place\/([^/@]+)\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/)
     if (placeMatch) {
       return {
         name: decodeURIComponent(placeMatch[1]).replace(/\+/g, " "),
         lat: parseFloat(placeMatch[2]),
         lng: parseFloat(placeMatch[3]),
+        url,
       }
     }
 
     // Try /place/Name pattern without coordinates
-    const placeNameOnly = cleaned.match(/\/place\/([^/@?]+)/)
+    const placeNameOnly = url.match(/\/place\/([^/@?]+)/)
     if (placeNameOnly) {
       return {
         name: decodeURIComponent(placeNameOnly[1]).replace(/\+/g, " "),
+        url,
       }
     }
 
     // Try ?q=lat,lng or ?q=place+name
-    const qMatch = cleaned.match(/[?&]q=([^&]+)/)
+    const qMatch = url.match(/[?&]q=([^&]+)/)
     if (qMatch) {
       const qVal = decodeURIComponent(qMatch[1]).replace(/\+/g, " ")
       const coordMatch = qVal.match(/^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/)
@@ -58,24 +61,26 @@ function parseGoogleMapsUrl(url: string): { name: string; lat?: number; lng?: nu
           name: `Location (${parseFloat(coordMatch[1]).toFixed(4)}, ${parseFloat(coordMatch[2]).toFixed(4)})`,
           lat: parseFloat(coordMatch[1]),
           lng: parseFloat(coordMatch[2]),
+          url,
         }
       }
-      return { name: qVal }
+      return { name: qVal, url }
     }
 
     // Try @lat,lng in URL
-    const atMatch = cleaned.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/)
+    const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/)
     if (atMatch) {
       return {
         name: `Location (${parseFloat(atMatch[1]).toFixed(4)}, ${parseFloat(atMatch[2]).toFixed(4)})`,
         lat: parseFloat(atMatch[1]),
         lng: parseFloat(atMatch[2]),
+        url,
       }
     }
 
     // Short link - can't resolve client-side, just accept it
-    if (cleaned.includes("goo.gl") || cleaned.includes("maps.app")) {
-      return { name: "" } // Will prompt user to name it
+    if (url.includes("goo.gl") || url.includes("maps.app")) {
+      return { name: "", url } // Will prompt user to name it
     }
 
     return null
@@ -233,7 +238,7 @@ export function MapsSpotAdder({
 
       if (!parsed.name) {
         // Short link or no name found - ask user to name it
-        setPendingParsed({ ...parsed, url })
+        setPendingParsed({ ...parsed, url: parsed.url })
         setShowNameInput(true)
         setIsLoading(false)
         setInputUrl("")
@@ -241,7 +246,7 @@ export function MapsSpotAdder({
         return
       }
 
-      addSpot(parsed.name, url, parsed.lat, parsed.lng)
+      addSpot(parsed.name, parsed.url, parsed.lat, parsed.lng)
       
       setInputUrl("")
       setIsLoading(false)
@@ -330,7 +335,7 @@ export function MapsSpotAdder({
             placeholder={
               lang === "en" ? "Name this spot..." : "为这个地点命名..."
             }
-            className={`flex-1 px-3 py-1.5 rounded-lg text-xs border focus:outline-none ${
+            className={`flex-1 px-3 py-1.5 rounded-lg text-base md:text-xs border focus:outline-none ${
               isHokkaido
                 ? "bg-hokkaido-card border-hokkaido-accent-soft text-hokkaido-text placeholder:text-hokkaido-text-muted/50 focus:border-hokkaido-accent"
                 : "bg-kansai-card border-kansai-accent/30 text-kansai-text placeholder:text-kansai-text-muted/50 focus:border-kansai-accent"
@@ -400,7 +405,7 @@ export function MapsSpotAdder({
               ? "Paste Google Maps link to add a spot..."
               : "粘贴 Google Maps 链接添加地点..."
           }
-          className={`flex-1 bg-transparent text-xs focus:outline-none disabled:opacity-50 ${
+          className={`flex-1 bg-transparent text-base md:text-xs focus:outline-none disabled:opacity-50 ${
             isHokkaido
               ? "text-hokkaido-text placeholder:text-hokkaido-text-muted/40"
               : "text-kansai-text placeholder:text-kansai-text-muted/40"
