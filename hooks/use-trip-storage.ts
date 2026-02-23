@@ -62,7 +62,6 @@ export function useTripNotes(dayId: number) {
       }
     }
     load()
-    return () => { ignore = true }
     return () => { 
       ignore = true 
       if (channel) supabase.removeChannel(channel)
@@ -127,7 +126,6 @@ export function useTripBudget(dayId: number) {
 
   useEffect(() => {
     let ignore = false
-    let channel: any = null
     async function load() {
       const { data: { user } } = await getSafeUser()
       
@@ -351,7 +349,6 @@ export function useTripActivities(dayId: number, initialActivities: Activity[]) 
       setIsLoaded(true)
     }
     load()
-    return () => { ignore = true }
     return () => { 
       ignore = true 
       if (channel) supabase.removeChannel(channel)
