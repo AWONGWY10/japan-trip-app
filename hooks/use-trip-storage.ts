@@ -13,6 +13,7 @@ export function useTripNotes(dayId: number) {
 
   useEffect(() => {
     let ignore = false
+    let channel: any = null
     async function load() {
       const { data: { user } } = await getSafeUser()
       
@@ -32,6 +33,28 @@ export function useTripNotes(dayId: number) {
           const myEntry = data.find((n: any) => n.user_id === user.id)
           if (myEntry) setNotes(myEntry.content || "")
         }
+
+        // Subscribe to Realtime changes for Notes
+        channel = supabase
+          .channel(`notes_${dayId}`)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'notes',
+              filter: `day_id=eq.${dayId}`,
+            },
+            async () => {
+              // When any note changes, reload the list
+              const { data: refreshed } = await supabase
+                .from("notes")
+                .select("user_id, content, user_email")
+                .eq("day_id", dayId)
+              if (!ignore && refreshed) setSharedNotes(refreshed)
+            }
+          )
+          .subscribe()
       } else {
         // Load from LocalStorage
         const saved = localStorage.getItem(key)
@@ -40,6 +63,10 @@ export function useTripNotes(dayId: number) {
     }
     load()
     return () => { ignore = true }
+    return () => { 
+      ignore = true 
+      if (channel) supabase.removeChannel(channel)
+    }
   }, [dayId, key])
 
   // Update local state only (Draft)
@@ -100,6 +127,7 @@ export function useTripBudget(dayId: number) {
 
   useEffect(() => {
     let ignore = false
+    let channel: any = null
     async function load() {
       const { data: { user } } = await getSafeUser()
       
@@ -286,11 +314,32 @@ export function useTripActivities(dayId: number, initialActivities: Activity[]) 
           .from("day_activities")
           .select("activities_json")
           .eq("day_id", dayId)
+          .order('updated_at', { ascending: false }) // Always get the latest edit from ANY user
+          .limit(1)
           .maybeSingle()
         
         if (!ignore && data?.activities_json) {
           setActivities(data.activities_json)
         }
+
+        // Subscribe to Realtime changes for Activities
+        channel = supabase
+          .channel(`day_activities_${dayId}`) // Shared channel for this day
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'day_activities',
+              filter: `day_id=eq.${dayId}`, // Listen to ALL updates for this day
+            },
+            (payload) => {
+              if (!ignore && payload.new && (payload.new as any).activities_json) {
+                setActivities((payload.new as any).activities_json)
+              }
+            }
+          )
+          .subscribe()
       } else {
         const saved = localStorage.getItem(key)
         if (!ignore && saved) {
@@ -303,6 +352,10 @@ export function useTripActivities(dayId: number, initialActivities: Activity[]) 
     }
     load()
     return () => { ignore = true }
+    return () => { 
+      ignore = true 
+      if (channel) supabase.removeChannel(channel)
+    }
   }, [dayId, key])
 
   const saveActivities = useCallback(async (newActivities: Activity[]) => {
