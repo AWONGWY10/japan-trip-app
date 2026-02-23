@@ -17,7 +17,7 @@ type Lang = "en" | "zh"
 function parseGoogleMapsUrl(input: string): { name: string; lat?: number; lng?: number; url: string } | null {
   try {
     // 1. Extract URL if mixed with text (common on mobile share: "Check out this place https://...")
-    const urlMatch = input.match(/https?:\/\/(www\.)?(google\.com\/maps|maps\.google\.com|goo\.gl\/maps|maps\.app\.goo\.gl)[^\s]*/)
+    const urlMatch = input.match(/https?:\/\/(www\.)?(google\.com\/maps|maps\.google\.com|goo\.gl\/maps|maps\.app\.goo\.gl|share\.google)[^\s]*/)
     const url = urlMatch ? urlMatch[0] : input.trim()
 
     // Check if it's a Google Maps URL
@@ -25,7 +25,8 @@ function parseGoogleMapsUrl(input: string): { name: string; lat?: number; lng?: 
       url.includes("google.com/maps") ||
       url.includes("maps.google") ||
       url.includes("goo.gl/maps") ||
-      url.includes("maps.app.goo.gl")
+      url.includes("maps.app.goo.gl") ||
+      url.includes("share.google")
 
     if (!isGoogleMaps) return null
 
@@ -77,7 +78,7 @@ function parseGoogleMapsUrl(input: string): { name: string; lat?: number; lng?: 
     }
 
     // Short link - can't resolve client-side, just accept it
-    if (url.includes("goo.gl") || url.includes("maps.app")) {
+    if (url.includes("goo.gl") || url.includes("maps.app") || url.includes("share.google")) {
       return { name: "", url } // Will prompt user to name it
     }
 
