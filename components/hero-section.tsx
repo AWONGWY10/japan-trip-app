@@ -72,7 +72,7 @@ export function HeroSection({ lang }: { lang: Lang }) {
               13天
               <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#c0ddf0] to-[#ff9eb8]">
-                日本冒险之旅
+                日本探索之旅
               </span>
             </>
           )}
