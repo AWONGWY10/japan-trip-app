@@ -304,6 +304,7 @@ export function useTripActivities(dayId: number, initialActivities: Activity[]) 
 
   useEffect(() => {
     let ignore = false
+    let channel: any = null
     async function load() {
       const { data: { user } } = await getSafeUser()
       
@@ -319,6 +320,8 @@ export function useTripActivities(dayId: number, initialActivities: Activity[]) 
         if (!ignore && data?.activities_json) {
           setActivities(data.activities_json)
         }
+
+        if (ignore) return
 
         // Subscribe to Realtime changes for Activities
         channel = supabase

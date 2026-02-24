@@ -571,7 +571,7 @@ export function DayCard({
   const { activities, setActivities } = useTripActivities(data.day, data.activities)
   
   const completedCount = activities.filter((a) =>
-    checkedActivities.has(a.id)
+    a && checkedActivities.has(a.id)
   ).length
   const totalCount = activities.length
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
@@ -764,7 +764,8 @@ export function DayCard({
           <>
             {/* Activities list */}
             <div className="px-3 pb-2 flex flex-col gap-1">
-              {activities.map((activity, index) => (
+              {activities.map((activity, index) => 
+                activity ? (
                 <ActivityItem
                   key={activity.id}
                   activity={activity}
@@ -786,7 +787,7 @@ export function DayCard({
                   isLast={index === activities.length - 1}
                   onRemove={() => handleRemoveActivity(index)}
                 />
-              ))}
+              ) : null)}
             </div>
 
             {/* Google Maps spot adder */}
